@@ -97,17 +97,11 @@ func scrapeUrls(urls []string, parser Parser, concurrency int) []SeoData {
 				n++
 				go func(url string, token chan struct{}) {
 					log.Printf("Requesting URL: %s", url)
-					res, err := crawlPage(url, token)
+					res, err := scrapePage(url, tokens, parser)
 					if err != nil {
-						log.Printf("Error getting %s", url)
+						log.Printf("Encountered error, URL: %s", url)
 					} else {
-						data, err := parser.GetSeoData(res)
-						fmt.Println(data)
-						if err != nil {
-							log.Panicf("Error extracting data from %s", url)
-						} else {
-							results = append(results, data)
-						}
+						results = append(results, res)
 					}
 					worklist <- []string{}
 				}(url, tokens)
