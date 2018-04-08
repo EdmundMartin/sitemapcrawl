@@ -9,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// SeoData is a struct of useful SEO data
 type SeoData struct {
 	URL             string
 	Title           string
@@ -17,8 +18,28 @@ type SeoData struct {
 	StatusCode      int
 }
 
+// Parser defines the parsing interface
 type Parser interface {
 	GetSeoData(resp *http.Response) (SeoData, error)
+}
+
+// DefaultParser is en empty struct for implmenting default parser
+type DefaultParser struct {
+}
+
+// GetSeoData concrete implementation of the default parser
+func (d DefaultParser) GetSeoData(resp *http.Response) (SeoData, error) {
+	doc, err := goquery.NewDocumentFromResponse(resp)
+	if err != nil {
+		return SeoData{}, err
+	}
+	result := SeoData{}
+	result.URL = resp.Request.URL.String()
+	result.StatusCode = resp.StatusCode
+	result.Title = doc.Find("title").First().Text()
+	result.H1 = doc.Find("h1").First().Text()
+	result.MetaDescription, _ = doc.Find("meta[name^=description]").Attr("content")
+	return result, nil
 }
 
 func extractUrls(response *http.Response) ([]string, error) {
@@ -51,12 +72,12 @@ func isSitemap(urls []string) ([]string, []string) {
 	return sitemapFiles, pages
 }
 
-func extractSitemapURLs(startUrl string) []string {
+func extractSitemapURLs(startURL string) []string {
 	worklist := make(chan []string)
 	toCrawl := []string{}
 	var n int
 	n++
-	go func() { worklist <- []string{startUrl} }()
+	go func() { worklist <- []string{startURL} }()
 	for ; n > 0; n-- {
 		list := <-worklist
 		for _, link := range list {
@@ -111,6 +132,7 @@ func scrapeUrls(urls []string, parser Parser, concurrency int) []SeoData {
 	return results
 }
 
+// ScrapeSitemap scrapes a given sitemap
 func ScrapeSitemap(url string, parser Parser, concurrency int) []SeoData {
 	results := extractSitemapURLs(url)
 	res := scrapeUrls(results, parser, concurrency)
