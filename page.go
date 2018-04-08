@@ -1,4 +1,4 @@
-package sitemapSeo
+package sitemapcrawl
 
 func scrapePage(url string, token chan struct{}, parser Parser) (SeoData, error) {
 	res, err := crawlPage(url, token)
