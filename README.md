@@ -37,5 +37,4 @@ func main() {
 }
 ```
 ## TODO
-* Refactor code to make it prettier
-* Add additional support for Gzip sitemaps
+* Some sitemaps don't have sub sitemaps named as XML files. Type check response for more accurate stuff
