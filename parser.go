@@ -1,4 +1,4 @@
-package sitemapSeo
+package sitemapcrawl
 
 import (
 	"fmt"
