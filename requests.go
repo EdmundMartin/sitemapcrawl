@@ -1,4 +1,4 @@
-package sitemapSeo
+package sitemapcrawl
 
 import (
 	"math/rand"
@@ -22,7 +22,9 @@ func randomUserAgent() string {
 }
 
 func makeRequest(url string) (*http.Response, error) {
-	client := http.Client{}
+	client := http.Client{
+		Timeout: 10 * time.Second,
+	}
 	req, err := http.NewRequest("GET", url, nil)
 	req.Header.Set("User-Agent", randomUserAgent())
 	if err != nil {
